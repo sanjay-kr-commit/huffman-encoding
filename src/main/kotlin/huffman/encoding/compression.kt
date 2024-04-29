@@ -1,7 +1,6 @@
 package huffman.encoding
 
-import huffman.encoding.Node.Companion.compressedString
-import huffman.encoding.Node.Companion.toHuffmanTree
+import huffman.encoding.Node.Companion.deserializeHuffmanTree
 import java.util.*
 
 val String.buildCharacterTable : Map<Char,Int>
@@ -48,14 +47,22 @@ fun Node?.huffmanCharPath(path : String = "", map : HashMap<Char,String> = hashM
 
 fun String.encodeData() : String = StringBuilder().let { encodedBuffer ->
 
+    println( "Document Char Count : $length" )
+
     val huffmanTree = buildCharacterTable
+        .also {
+            println( "huffman table : $it" )
+        }
         .buildHuffmanTree
+        .also {
+            println( "Huffman Tree $it" )
+        }
 
     huffmanTree
-        .toHeap
+        .serialize
         .let {
             var logBaseSize = 0
-            var sizeCopy = it.size
+            var sizeCopy = it.length
             while ( sizeCopy > 0 ) {
                 logBaseSize++
                 sizeCopy /= 10
@@ -63,19 +70,17 @@ fun String.encodeData() : String = StringBuilder().let { encodedBuffer ->
             // append int size
             encodedBuffer.append( logBaseSize )
             // append heap size
-            encodedBuffer.append( it.size )
+            encodedBuffer.append( it.length )
             // append huffman heap
-            encodedBuffer.append( compressedString( it ) )
+            encodedBuffer.append( it )
         }
-
-    println( huffmanTree.toHeap.toList() )
 
     StringBuilder().let { encodedData ->
         var bitCount = 0
         val huffmanCharPath = huffmanTree
             .huffmanCharPath()
 
-        println( huffmanCharPath )
+        println( "Huffman Encoded Char Path : $huffmanCharPath" )
 
         var c = 0
         this.forEach { char ->
@@ -102,6 +107,9 @@ fun String.encodeData() : String = StringBuilder().let { encodedBuffer ->
         encodedBuffer.append( encodedData )
 
     }
+
+    println( "Encoded Char Count : ${encodedBuffer.length}" )
+
     encodedBuffer
 }.toString()
 
@@ -117,7 +125,7 @@ fun String.decodeData() : String {
     val heap = substring( index , index+heapSize )
     val trashBit = this[ index+heapSize ] - '0'
     val encodedData = substring( index+heapSize+1 )
-    val huffmanTree = heap.toHuffmanTree()
+    val huffmanTree = heap.deserializeHuffmanTree
     val decodedBuffer = StringBuilder()
 
     val reverseBitOrder : (Int) -> Int = { it ->
