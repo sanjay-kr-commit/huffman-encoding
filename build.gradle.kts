@@ -1,6 +1,5 @@
 plugins {
     kotlin("jvm") version "1.9.23"
-    application
 }
 
 group = "huffman.encoding"
@@ -17,12 +16,9 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
 kotlin {
     jvmToolchain(17)
-}
-
-application {
-    mainClass.set("MainKt")
 }
 
 tasks.withType<Jar> {
