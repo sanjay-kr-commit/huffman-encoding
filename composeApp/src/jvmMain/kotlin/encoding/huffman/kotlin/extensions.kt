@@ -78,10 +78,10 @@ fun InputStream.compressedByte( huffmanPathTable : HashMap<Int, String> ) : Byte
             }
         }
     }
-    if ( count in 1 .. 8 ) {
+    if ( count != 0 ) {
         byte = byte shl (8-count)
         list.add( byte.toByte() )
-    } else count += 8
+    } else count = 8
     list.add( 0 , count.toByte() )
     return list.toByteArray()
 }
